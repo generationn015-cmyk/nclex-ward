@@ -5,194 +5,179 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#12110e">
+<meta name="theme-color" content="#070b14">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
-<link rel="apple-touch-icon" href="icon.svg">
 <title>NCLEX Ward</title>
 <style>
-  :root {
-    --floor: #16140f; --grout: #2a261e; --ink: #f3ead8; --muted: #9a907c;
-    --paper: #efe6d2; --paper-ink: #1c1914; --teal: #2ee6c5; --amber: #f0b429;
-    --red: #ff5a63; --ok: #7dffb3; --station: #0e0d0b; --fs: 16px;
+  :root { --bg:#070b14; --card:#fff6e8; --ink:#141c28; --muted:#7a8494; --go:#2ee59d; --hot:#ff4d6d; --gold:#ffd24d; --fs:16px; }
+  html.fs-s { --fs:14px; } html.fs-m { --fs:16px; } html.fs-l { --fs:18px; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; height:100%; background:var(--bg); color:#eef3ff; font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif; overflow:hidden; font-size:var(--fs); }
+  #app { height:100%; height:100dvh; display:flex; flex-direction:column; background:
+    radial-gradient(1200px 400px at 50% -10%, #1a2a4a 0%, transparent 60%), var(--bg); }
+  .hud {
+    padding: calc(8px + env(safe-area-inset-top)) 12px 6px;
+    display:flex; justify-content:space-between; align-items:center; gap:8px;
   }
-  html.fs-s { --fs: 14px; } html.fs-m { --fs: 16px; } html.fs-l { --fs: 18px; }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body {
-    margin: 0; height: 100%; color: var(--ink);
-    font-family: "SF Pro Display", "Segoe UI", system-ui, sans-serif;
-    overflow: hidden; font-size: var(--fs);
-    background:
-      linear-gradient(90deg, transparent 31px, #ffffff06 32px),
-      linear-gradient(#ffffff05 31px, transparent 32px),
-      repeating-linear-gradient(90deg, var(--floor) 0 48px, var(--grout) 48px 49px),
-      var(--floor);
-    background-size: 32px 32px, 32px 32px, 49px 100%, auto;
+  .logo {
+    border:0; background:transparent; color:#fff; font-weight:900; letter-spacing:.12em; font-size:.78rem; padding:8px 0;
   }
-  #app { height: 100%; height: 100dvh; display: flex; flex-direction: column; position: relative; }
-  .lights { pointer-events: none; position: absolute; inset: 0; z-index: 0; background: linear-gradient(180deg, #0008 0%, transparent 18%), linear-gradient(0deg, #000a 0%, transparent 22%), linear-gradient(90deg, #f0b42912 0 18%, transparent 38%), linear-gradient(270deg, #2ee6c510 0 16%, transparent 40%); }
-  .top { position: absolute; top: 0; left: 0; right: 0; z-index: 5; padding: calc(8px + env(safe-area-inset-top)) 12px 8px; display: grid; gap: 8px; background: linear-gradient(180deg, #0b0a08f2 70%, transparent); }
-  .brandrow { display: flex; justify-content: space-between; align-items: center; }
-  .brand { font-weight: 800; letter-spacing: .14em; font-size: .68rem; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
-  .brand .mark { width: 18px; height: 14px; border: 1.5px solid var(--teal); display: grid; grid-template-columns: 1fr 1fr; gap: 1px; padding: 2px; }
-  .brand .mark i { background: var(--amber); display: block; }
-  .brand .mark i:nth-child(2) { background: var(--teal); }
-  .stats { display: flex; gap: 6px; font-size: .68rem; }
-  .chip { background: #0008; border: 1px solid #ffffff1c; padding: 4px 8px; font-variant-numeric: tabular-nums; letter-spacing: .04em; }
-  .chip b { color: var(--amber); }
-  .floor { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; height: 18px; }
-  .bay { border: 1px solid #ffffff22; background: #ffffff0a; }
-  .bay.on { background: var(--teal); border-color: var(--teal); }
-  .bay.hot { background: var(--red); border-color: var(--red); }
-  .bay.done { background: var(--amber); border-color: var(--amber); }
-  .stage { flex: 1; position: relative; overflow: hidden; z-index: 1; }
-  .card { position: absolute; inset: 0; padding: 78px 14px 122px; display: flex; flex-direction: column; transition: transform .32s cubic-bezier(.2,.8,.2,1), opacity .32s ease; }
-  .card.exit-up { transform: translateY(-110%); opacity: 0; }
-  .card.exit-down { transform: translateY(110%); opacity: 0; }
-  .card.enter-from-down { transform: translateY(110%); }
-  .card.enter-from-up { transform: translateY(-110%); }
-  .chart { background: var(--paper); color: var(--paper-ink); border: 1px solid #c9b896; box-shadow: 0 18px 40px #0008, inset 0 0 0 6px #f7f0de; padding: 12px 12px 10px; display: flex; flex-direction: column; min-height: 0; flex: 1; position: relative; }
-  .chart:before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 10px; background: repeating-linear-gradient(#c23b3b 0 2px, transparent 2px 18px); }
-  .roomrow { display: flex; justify-content: space-between; align-items: flex-end; margin: 0 0 8px 8px; gap: 8px; }
-  .room { font-family: ui-monospace, Menlo, monospace; font-weight: 800; font-size: 1.15rem; letter-spacing: .04em; }
-  .meta { display: flex; gap: 6px; flex-wrap: wrap; }
-  .tag { font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; border: 1px solid #1c191455; padding: 3px 6px; font-weight: 700; }
-  .tag.watch { background: #f0b42933; } .tag.crash { background: #ff5a6330; } .tag.stable { background: #2ee6c526; }
-  .case { margin: 0 0 8px 8px; background: #e4d8b8; border-left: 3px solid #1c1914; padding: 8px; font-size: .8rem; line-height: 1.35; white-space: pre-wrap; max-height: 20%; overflow: auto; }
-  .stem { margin: 0 0 10px 8px; font-size: 1.05rem; line-height: 1.32; font-weight: 700; max-height: 28%; overflow: auto; }
-  .opts { display: flex; flex-direction: column; gap: 6px; overflow: auto; flex: 1; margin-left: 8px; }
-  .opt { width: 100%; text-align: left; border: 1px solid #1c191433; background: #fffdf6; color: var(--paper-ink); padding: 10px 10px 10px 0; font-size: .92rem; line-height: 1.32; display: grid; grid-template-columns: 36px 1fr; align-items: start; gap: 8px; }
-  .opt .ltr { font-family: ui-monospace, Menlo, monospace; font-weight: 800; background: #1c1914; color: var(--paper); text-align: center; padding: 8px 0; }
-  .opt.selected { outline: 2px solid #1c1914; background: #f0b42944; }
-  .opt.correct { background: #7dffb344; outline: 2px solid #1b7a48; }
-  .opt.wrong { background: #ff5a6340; outline: 2px solid #a61b28; }
-  .why { display: none; margin: 8px 0 0 8px; background: #1c1914; color: #efe6d2; padding: 8px 10px; font-size: .82rem; line-height: 1.4; max-height: 28%; overflow: auto; }
-  .why.show { display: block; } .why .nx { color: #c9b896; margin-top: 6px; }
-  .dock { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; padding: 8px 12px calc(10px + env(safe-area-inset-bottom)); background: linear-gradient(#3a3428, #1a1712 18%, #0e0d0b); border-top: 3px solid #f0b429; display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; }
-  .dock:before { content: "NURSE STATION  ·  4-WEST"; position: absolute; top: -18px; left: 12px; font-size: .58rem; letter-spacing: .16em; color: var(--amber); }
-  .handle { position: absolute; left: 50%; bottom: 58px; transform: translateX(-50%); width: 72px; height: 18px; z-index: 7; display: flex; align-items: center; justify-content: center; }
-  .handle i { width: 54px; height: 6px; background: #f0b429; }
-  .btn { border: 0; padding: 12px 12px; font-weight: 800; cursor: pointer; letter-spacing: .04em; }
-  .btn.main { background: var(--teal); color: #081411; font-size: .95rem; }
-  .btn.ghost { background: #ffffff14; color: #fff; }
-  .hint { position: absolute; right: 10px; bottom: 86px; color: #fff8; font-size: .62rem; writing-mode: vertical-rl; letter-spacing: .2em; text-transform: uppercase; pointer-events: none; }
-  .gate, .sheet, .debrief { position: absolute; inset: 0; z-index: 8; padding: calc(22px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; justify-content: flex-end; overflow: auto; background: linear-gradient(180deg, #0006, #0e0d0bf2 40%), repeating-linear-gradient(90deg, #16140f 0 48px, #2a261e 48px 49px); }
-  .gate h1, .sheet h2, .debrief h2 { margin: 0 0 8px; font-size: 1.7rem; letter-spacing: -.03em; }
-  .kicker { font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; color: var(--amber); margin: 0 0 6px; }
-  .muted { color: var(--muted); line-height: 1.45; margin: 0 0 14px; }
-  .choice { display: grid; gap: 8px; margin-bottom: 12px; }
-  .choice button, .fonts button { text-align: left; background: #1b1914; color: #fff; border: 1px solid #ffffff1c; padding: 12px; }
-  .choice button.active, .fonts button.active { border-color: var(--teal); background: #11332c; }
-  .choice b { display: block; font-size: 1.02rem; margin-bottom: 3px; }
-  .choice span { color: var(--muted); font-size: .82rem; }
-  .fonts { display: flex; gap: 8px; margin-bottom: 12px; } .fonts button { flex: 1; text-align: center; }
-  .hidden { display: none !important; }
-  .toast { position: absolute; top: 22%; left: 50%; transform: translateX(-50%); background: var(--paper); color: var(--paper-ink); border: 2px solid #1c1914; padding: 8px 12px; z-index: 9; font-size: .78rem; font-weight: 700; opacity: 0; transition: opacity .2s; white-space: nowrap; }
-  .toast.show { opacity: 1; }
-  .flash { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
-  .flash.good { background: #7dffb318; } .flash.bad { background: #ff5a6318; }
-  .live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .fine { font-size: .72rem; color: #7f7a72; line-height: 1.4; margin-top: 8px; }
-  .miss-list { color: #ddd6c8; font-size: .86rem; line-height: 1.45; margin: 0 0 12px; }
-  .plan { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 0 0 12px; font-size: .68rem; color: #c9b896; }
-  .plan b { color: var(--teal); display: block; font-size: .78rem; }
-  .field { position: absolute; inset: 0; z-index: 8; overflow: auto; padding: calc(18px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom)); background: linear-gradient(180deg, #0007, #0e0d0bf5 36%), repeating-linear-gradient(90deg, #16140f 0 48px, #2a261e 48px 49px); }
-  .who { display: flex; gap: 8px; align-items: center; margin: 0 0 10px; }
-  .who input { flex: 1; background: #1b1914; color: var(--ink); border: 1px solid #ffffff22; padding: 10px 12px; font-size: 1rem; font-weight: 700; }
-  .bars { display: grid; gap: 6px; margin: 0 0 12px; }
-  .barrow { display: grid; grid-template-columns: 92px 1fr 44px; gap: 8px; align-items: center; font-size: .72rem; }
-  .track { height: 10px; background: #ffffff12; overflow: hidden; } .track i { display: block; height: 100%; background: var(--teal); } .track.weak i { background: var(--red); }
-  .lanes { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin: 0 0 12px; }
-  .lane { border: 1px solid #ffffff1c; background: #1b1914; padding: 10px 8px; text-align: left; color: #fff; }
-  .lane b { display: block; font-size: .9rem; } .lane span { color: var(--muted); font-size: .72rem; }
-  .lane.active { border-color: var(--teal); background: #11332c; }
-  .roomlist { display: grid; gap: 6px; margin: 0 0 12px; }
-  .roomlist button { text-align: left; background: #efe6d2; color: #1c1914; border: 0; padding: 10px; }
-  .roomlist button em { display: block; font-style: normal; font-size: .72rem; color: #6b6354; margin-top: 3px; }
-  .roomlist button.ok { background: #d7f5e4; } .roomlist button.bad { background: #f8d0d3; }
+  .hud-stats { display:flex; gap:6px; align-items:center; }
+  .xp, .chip {
+    background:#121b2c; border:2px solid #2a3a56; padding:6px 8px; font-weight:800; font-size:.72rem; color:#fff;
+  }
+  .xp b, .chip b { color:var(--gold); }
+  .chip.warn { border-color:#7a2a3a; background:#2a1218; }
+  .chip.warn b { color:var(--hot); }
+  .xpbar { height:6px; margin:0 12px 4px; background:#121b2c; border:2px solid #2a3a56; }
+  .xpbar i { display:block; height:100%; width:0; background:linear-gradient(90deg,var(--gold),#fff1a8); transition:width .3s ease; }
+  .mode-tag { text-align:center; font-size:.68rem; font-weight:800; letter-spacing:.14em; color:var(--gold); min-height:1em; }
+  .stage { flex:1; position:relative; overflow:hidden; }
+  .card { position:absolute; inset:0; padding:6px 12px 108px; display:flex; flex-direction:column; transition:transform .24s ease, opacity .24s ease; }
+  .card.exit-up { transform:translateY(-110%); opacity:0; }
+  .card.exit-down { transform:translateY(110%); opacity:0; }
+  .card.enter-from-down { transform:translateY(110%); }
+  .card.enter-from-up { transform:translateY(-110%); }
+  .chart {
+    background:var(--card); color:var(--ink); border:3px solid #000;
+    box-shadow: 0 10px 0 #05070c; padding:12px; display:flex; flex-direction:column; min-height:0; flex:1;
+  }
+  .roomrow { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px; }
+  .qnum { font-weight:900; font-size:.78rem; letter-spacing:.08em; }
+  .meta { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+  .tag { background:#141c28; color:#fff; font-size:.64rem; font-weight:800; padding:4px 7px; letter-spacing:.04em; }
+  .tag.easy { background:#1f7a4a; } .tag.med { background:#c46b00; } .tag.hard { background:#c21d3a; }
+  .case { background:#efe4cc; padding:8px; font-size:.82rem; line-height:1.35; white-space:pre-wrap; max-height:18%; overflow:auto; margin-bottom:8px; }
+  .stem { margin:0 0 10px; font-size:1.06rem; line-height:1.32; font-weight:800; max-height:28%; overflow:auto; }
+  .opts { display:flex; flex-direction:column; gap:8px; overflow:auto; flex:1; }
+  .opt { width:100%; text-align:left; border:3px solid #141c28; background:#fff; color:var(--ink); padding:0; font-size:.92rem; line-height:1.3; display:grid; grid-template-columns:42px 1fr; font-weight:700; }
+  .opt .ltr { background:#141c28; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:900; }
+  .opt span:last-child { padding:11px; }
+  .opt.selected { background:#ffe08a; }
+  .opt.correct { background:#b6ffd4; }
+  .opt.wrong { background:#ffc1cc; }
+  .why { display:none; margin-top:8px; background:#141c28; color:#fff; padding:8px 10px; font-size:.82rem; line-height:1.4; max-height:24%; overflow:auto; }
+  .why.show { display:block; } .why .nx { color:#ffd24d; margin-top:6px; }
+  .dock {
+    position:absolute; left:0; right:0; bottom:0; z-index:6;
+    padding:8px 10px calc(12px + env(safe-area-inset-bottom));
+    background:#05070c; border-top:3px solid var(--gold);
+    display:grid; grid-template-columns:72px 1fr 72px; gap:8px;
+  }
+  .btn { border:0; padding:16px 8px; font-weight:900; cursor:pointer; }
+  .btn.main { background:var(--go); color:#062318; font-size:1.12rem; letter-spacing:.06em; box-shadow:0 5px 0 #14865a; }
+  .btn.ghost { background:#1a2438; color:#fff; font-size:.78rem; }
+  .handle, .hint { display:none; }
+  .flash { position:absolute; inset:0; pointer-events:none; z-index:4; }
+  .flash.good { background:#2ee59d22; } .flash.bad { background:#ff4d6d22; }
+  .toast { position:absolute; top:16%; left:50%; transform:translateX(-50%); background:var(--gold); color:#141c28; padding:10px 16px; z-index:9; font-weight:900; opacity:0; transition:opacity .2s; pointer-events:none; }
+  .toast.show { opacity:1; }
+  .pop { animation:pop .35s ease; }
+  @keyframes pop { 0%{transform:scale(.86)} 60%{transform:scale(1.08)} 100%{transform:scale(1)} }
+  .gate, .sheet, .debrief, .field {
+    position:absolute; inset:0; z-index:8; overflow:auto;
+    padding:calc(22px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom));
+    background:linear-gradient(#15233f,#070b14);
+    display:flex; flex-direction:column; justify-content:flex-end;
+  }
+  .gate h1, .sheet h2, .debrief h2, .field h2 { margin:0 0 8px; font-size:2.1rem; }
+  .muted { color:#9aa6b8; line-height:1.4; margin:0 0 14px; }
+  .choice { display:grid; gap:8px; margin-bottom:12px; }
+  .choice button { text-align:left; background:#162238; color:#fff; border:3px solid #2a3d5c; padding:14px; }
+  .choice button.active { border-color:var(--go); background:#113326; }
+  .choice b { display:block; font-size:1.08rem; }
+  .choice span { color:#9aa6b8; font-size:.82rem; }
+  .hidden { display:none !important; }
+  .live { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+  .fine { font-size:.72rem; color:#7d8796; }
+  .roomlist { display:grid; gap:6px; margin:0 0 12px; }
+  .roomlist button { text-align:left; background:var(--card); color:var(--ink); border:0; padding:12px; font-weight:700; }
+  .roomlist button em { display:block; font-style:normal; font-size:.75rem; color:#5b6472; margin-top:3px; }
+  .roomlist button.ok { background:#b6ffd4; }
+  .roomlist button.bad { background:#ffc1cc; }
+  .lanes { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin:0 0 12px; }
+  .lane { border:3px solid #2a3d5c; background:#162238; color:#fff; padding:12px; text-align:left; }
+  .lane.active { border-color:var(--gold); background:#3a2e10; }
+  .lane b { display:block; }
+  .who { display:none; }
+  .fonts { display:flex; gap:8px; margin-bottom:10px; }
+  .fonts button { flex:1; background:#162238; color:#fff; border:2px solid #2a3d5c; padding:8px; }
+  .fonts button.active { border-color:var(--gold); }
+  .kicker { color:var(--gold); font-weight:800; letter-spacing:.12em; font-size:.72rem; text-transform:uppercase; margin:0 0 6px; }
+  .miss-list { margin:0 0 12px; color:#d7deea; }
+  .statrow { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:0 0 16px; }
+  .stat { background:#162238; border:2px solid #2a3d5c; padding:12px 8px; text-align:center; }
+  .stat b { display:block; font-size:1.3rem; color:var(--gold); }
+  .stat span { font-size:.7rem; color:#9aa6b8; }
 </style>
 </head>
 <body>
 <div id="app">
-  <div class="lights"></div>
-  <div class="top">
-    <div class="brandrow">
-      <div class="brand"><span class="mark"><i></i><i></i><i></i><i></i></span>NCLEX Ward · 4-West</div>
-      <div class="stats">
-        <div class="chip" id="trackPill">RN</div>
-        <div class="chip">STRK <b id="streak">0</b></div>
-        <div class="chip">HITS <b id="score">0</b></div>
-      </div>
+  <div class="hud">
+    <button class="logo" id="menuBtn" type="button">WARD</button>
+    <div class="hud-stats">
+      <div class="xp" id="lvlChip">LV 1</div>
+      <div class="xp">🔥 <b id="streak">0</b></div>
+      <div class="xp">⭐ <b id="score">0</b></div>
+      <button class="chip warn" id="missChip" type="button">MISS <b id="missCount">0</b></button>
     </div>
-    <div class="floor" id="floor"></div>
   </div>
+  <div class="xpbar"><i id="xpFill"></i></div>
+  <div class="mode-tag" id="modeTag"></div>
   <div class="stage" id="stage">
     <div class="card" id="card"></div>
-    <div class="hint hidden" id="hint">pull the bar</div>
+    <div class="hint hidden" id="hint"></div>
     <div class="flash" id="flash"></div>
-    <div class="handle" id="handle" aria-label="Swipe up for next room"><i></i></div>
+    <div class="handle" id="handle"><i></i></div>
   </div>
   <div class="dock" id="dock">
-    <button class="btn ghost" id="backBtn">PREV</button>
-    <button class="btn main" id="mainBtn">LOCK CHART</button>
-    <button class="btn ghost" id="menuBtn">BOARD</button>
+    <button class="btn ghost" id="backBtn" type="button">BACK</button>
+    <button class="btn main" id="mainBtn" type="button">CHECK</button>
+    <button class="btn ghost" id="meBtn" type="button">ME</button>
   </div>
   <div class="toast" id="toast"></div>
   <div class="live" id="live" aria-live="polite"></div>
+
   <div class="gate hidden" id="gate">
-    <p class="kicker">Night shift · 4-West</p>
-    <h1>You have the floor.</h1>
-    <p class="muted">Each swipe is a room. Read the chart. Lock the action. Walk to the next bay. Built on the 2026 NCLEX-RN / PN plan (Apr 1, 2026–Mar 31, 2029).</p>
-    <div class="plan">
-      <div><b>15–21%</b> Mgmt / Coordinated Care</div>
-      <div><b>13–19%</b> Pharm + parenteral</div>
-      <div><b>11–17%</b> Phys adaptation</div>
-      <div><b>10–16%</b> Safety + infection prev.</div>
-    </div>
+    <p class="kicker">One tap to start</p>
+    <h1>Play NCLEX.</h1>
+    <p class="muted">Pick an answer. Hit CHECK. Then NEXT. Wrong ones save themselves so you can replay them later.</p>
     <div class="choice">
-      <button id="pickRN" type="button"><b>Clock in RN</b><span>Management of Care · independent priority · drips</span></button>
-      <button id="pickPN" type="button"><b>Clock in PN</b><span>Coordinated Care · implement · escalate</span></button>
+      <button id="pickRN" type="button"><b>RN</b><span>Registered nurse</span></button>
+      <button id="pickPN" type="button"><b>PN</b><span>Practical / vocational nurse</span></button>
     </div>
-    <div class="who"><input id="nurseName" maxlength="24" placeholder="Name on the board" autocomplete="off"></div>
-    <button class="btn main" id="startBtn" type="button">Take report</button>
+    <input id="nurseName" class="hidden" maxlength="24">
+    <button class="btn main" id="startBtn" type="button">PLAY</button>
   </div>
+
   <div class="sheet hidden" id="menu">
-    <h2>Charge board</h2>
+    <h2>More</h2>
     <p class="muted" id="menuCopy"></p>
+    <p class="kicker">Text size</p>
     <div class="fonts" id="fonts">
-      <button type="button" data-fs="s">S</button>
-      <button type="button" data-fs="m">M</button>
-      <button type="button" data-fs="l">L</button>
+      <button type="button" data-fs="s">A-</button>
+      <button type="button" data-fs="m">A</button>
+      <button type="button" data-fs="l">A+</button>
     </div>
     <div class="choice">
-      <button type="button" id="modeMix"><b>Walk the floor</b><span>Endless shuffled rooms</span></button>
-      <button type="button" id="modeShift"><b>Work a shift</b><span>20 rooms, then report</span></button>
-      <button type="button" id="modeCase"><b>Unfolding case</b><span>6 CJMM steps · pick a client</span></button>
-      <button type="button" id="modeMiss"><b>Callback list</b><span>Two clean hits to clear the room</span></button>
-      <button type="button" id="openField"><b>My field</b><span>Wrongs, review, difficulty lanes</span></button>
-      <button type="button" id="switchTrack"><b>Switch RN / PN</b><span>Scores stay per license</span></button>
+      <button type="button" id="modeMix"><b>Keep playing</b><span>Endless mix</span></button>
+      <button type="button" id="modeShift"><b>Quick 20</b><span>Short run, then a score</span></button>
+      <button type="button" id="modeCase"><b>Story</b><span>One patient, 6 questions</span></button>
+      <button type="button" id="switchTrack"><b>Switch RN / PN</b></button>
     </div>
     <div id="casePick" class="choice hidden"></div>
-    <p class="fine">Not affiliated with NCSBN. Practice items only. 2026 test plan weights.</p>
-    <button class="btn main" id="closeMenu" type="button">Back to the floor</button>
+    <p class="fine">Practice only. Not NCSBN.</p>
+    <button class="btn main" id="closeMenu" type="button">CLOSE</button>
   </div>
+
   <div class="debrief hidden" id="debrief"></div>
   <div class="field hidden" id="field"></div>
 </div>
+<script src="labels.js"></script>
 <script src="b0.js"></script>
-<script src="b1.js"></script>
-<script src="b2.js"></script>
-<script src="b3.js"></script>
-<script src="b4.js"></script>
-<script src="b5.js"></script>
-<script src="b6.js"></script>
-<script src="b7.js"></script>
-<script src="b8.js"></script>
 <script src="b9.js"></script>
 <script src="b-now.js"></script>
-<script src="c-rn.js"></script>
-<script src="c-pn.js"></script>
-<script src="labels.js"></script>
 <script src="bank.js"></script>
 <script src="app.js"></script>
 </body>
