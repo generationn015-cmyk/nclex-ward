@@ -16,17 +16,10 @@
   html,body { margin:0; height:100%; background:var(--bg); color:#eef3ff; font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif; overflow:hidden; font-size:var(--fs); }
   #app { height:100%; height:100dvh; display:flex; flex-direction:column; background:
     radial-gradient(1200px 400px at 50% -10%, #1a2a4a 0%, transparent 60%), var(--bg); }
-  .hud {
-    padding: calc(8px + env(safe-area-inset-top)) 12px 6px;
-    display:flex; justify-content:space-between; align-items:center; gap:8px;
-  }
-  .logo {
-    border:0; background:transparent; color:#fff; font-weight:900; letter-spacing:.12em; font-size:.78rem; padding:8px 0;
-  }
+  .hud { padding: calc(8px + env(safe-area-inset-top)) 12px 6px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .logo { border:0; background:transparent; color:#fff; font-weight:900; letter-spacing:.12em; font-size:.78rem; padding:8px 0; }
   .hud-stats { display:flex; gap:6px; align-items:center; }
-  .xp, .chip {
-    background:#121b2c; border:2px solid #2a3a56; padding:6px 8px; font-weight:800; font-size:.72rem; color:#fff;
-  }
+  .xp, .chip { background:#121b2c; border:2px solid #2a3a56; padding:6px 8px; font-weight:800; font-size:.72rem; color:#fff; }
   .xp b, .chip b { color:var(--gold); }
   .chip.warn { border-color:#7a2a3a; background:#2a1218; }
   .chip.warn b { color:var(--hot); }
@@ -39,10 +32,7 @@
   .card.exit-down { transform:translateY(110%); opacity:0; }
   .card.enter-from-down { transform:translateY(110%); opacity:1; }
   .card.enter-from-up { transform:translateY(-110%); opacity:1; }
-  .chart {
-    background:var(--card); color:var(--ink); border:3px solid #000;
-    box-shadow: 0 10px 0 #05070c; padding:12px; display:flex; flex-direction:column; min-height:0; flex:1;
-  }
+  .chart { background:var(--card); color:var(--ink); border:3px solid #000; box-shadow: 0 10px 0 #05070c; padding:12px; display:flex; flex-direction:column; min-height:0; flex:1; }
   .roomrow { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px; }
   .qnum { font-weight:900; font-size:.78rem; letter-spacing:.08em; }
   .meta { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
@@ -59,12 +49,7 @@
   .opt.wrong { background:#ffc1cc; }
   .why { display:none; margin-top:8px; background:#141c28; color:#fff; padding:8px 10px; font-size:.82rem; line-height:1.4; max-height:24%; overflow:auto; }
   .why.show { display:block; } .why .nx { color:#ffd24d; margin-top:6px; }
-  .dock {
-    position:absolute; left:0; right:0; bottom:0; z-index:6;
-    padding:8px 10px calc(12px + env(safe-area-inset-bottom));
-    background:#05070c; border-top:3px solid var(--gold);
-    display:grid; grid-template-columns:72px 1fr 72px; gap:8px;
-  }
+  .dock { position:absolute; left:0; right:0; bottom:0; z-index:6; padding:8px 10px calc(12px + env(safe-area-inset-bottom)); background:#05070c; border-top:3px solid var(--gold); display:grid; grid-template-columns:72px 1fr 72px; gap:8px; }
   .btn { border:0; padding:16px 8px; font-weight:900; cursor:pointer; }
   .btn.main { background:var(--go); color:#062318; font-size:1.12rem; letter-spacing:.06em; box-shadow:0 5px 0 #14865a; }
   .btn.ghost { background:#1a2438; color:#fff; font-size:.78rem; }
@@ -75,12 +60,7 @@
   .toast.show { opacity:1; }
   .pop { animation:pop .35s ease; }
   @keyframes pop { 0%{transform:scale(.86)} 60%{transform:scale(1.08)} 100%{transform:scale(1)} }
-  .gate, .sheet, .debrief, .field {
-    position:absolute; inset:0; z-index:8; overflow:auto;
-    padding:calc(22px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom));
-    background:linear-gradient(#15233f,#070b14);
-    display:flex; flex-direction:column; justify-content:flex-end;
-  }
+  .gate, .sheet, .debrief, .field { position:absolute; inset:0; z-index:8; overflow:auto; padding:calc(22px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom)); background:linear-gradient(#15233f,#070b14); display:flex; flex-direction:column; justify-content:flex-end; }
   .gate h1, .sheet h2, .debrief h2, .field h2 { margin:0 0 8px; font-size:2.1rem; }
   .muted { color:#9aa6b8; line-height:1.4; margin:0 0 14px; }
   .choice { display:grid; gap:8px; margin-bottom:12px; }
@@ -177,6 +157,8 @@
 <script src="b2.js"></script>
 <script src="b3.js"></script>
 <script src="b4.js"></script>
+<script src="b9.js"></script>
+<script src="b-now.js"></script>
 <script src="c-pack.js"></script>
 <script src="app.js"></script>
 </body>
