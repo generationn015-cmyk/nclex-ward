@@ -37,8 +37,8 @@
   .card { position:absolute; inset:0; padding:6px 12px 108px; display:flex; flex-direction:column; transition:transform .24s ease, opacity .24s ease; }
   .card.exit-up { transform:translateY(-110%); opacity:0; }
   .card.exit-down { transform:translateY(110%); opacity:0; }
-  .card.enter-from-down { transform:translateY(110%); }
-  .card.enter-from-up { transform:translateY(-110%); }
+  .card.enter-from-down { transform:translateY(110%); opacity:1; }
+  .card.enter-from-up { transform:translateY(-110%); opacity:1; }
   .chart {
     background:var(--card); color:var(--ink); border:3px solid #000;
     box-shadow: 0 10px 0 #05070c; padding:12px; display:flex; flex-direction:column; min-height:0; flex:1;
@@ -138,7 +138,6 @@
   </div>
   <div class="toast" id="toast"></div>
   <div class="live" id="live" aria-live="polite"></div>
-
   <div class="gate hidden" id="gate">
     <p class="kicker">One tap to start</p>
     <h1>Play NCLEX.</h1>
@@ -150,7 +149,6 @@
     <input id="nurseName" class="hidden" maxlength="24">
     <button class="btn main" id="startBtn" type="button">PLAY</button>
   </div>
-
   <div class="sheet hidden" id="menu">
     <h2>More</h2>
     <p class="muted" id="menuCopy"></p>
@@ -170,15 +168,16 @@
     <p class="fine">Practice only. Not NCSBN.</p>
     <button class="btn main" id="closeMenu" type="button">CLOSE</button>
   </div>
-
   <div class="debrief hidden" id="debrief"></div>
   <div class="field hidden" id="field"></div>
 </div>
 <script src="labels.js"></script>
 <script src="b0.js"></script>
-<script src="b9.js"></script>
-<script src="b-now.js"></script>
-<script src="bank.js"></script>
+<script src="b1.js"></script>
+<script src="b2.js"></script>
+<script src="b3.js"></script>
+<script src="b4.js"></script>
+<script src="c-pack.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
