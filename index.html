@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#07080d">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>NCLEX Ward</title>
+<style>
+  :root {
+    --bg: #07080d;
+    --ink: #f4f1ea;
+    --muted: #9a9488;
+    --pink: #ff4d7a;
+    --gold: #ffd36a;
+    --mint: #5dffc2;
+    --fs: 16px;
+  }
+  html.fs-s { --fs: 14px; }
+  html.fs-m { --fs: 16px; }
+  html.fs-l { --fs: 18px; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: "SF Pro Display", "Segoe UI", system-ui, sans-serif; overflow: hidden; font-size: var(--fs); }
+  #app { height: 100%; height: 100dvh; display: flex; flex-direction: column; }
+  .top {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 5;
+    padding: calc(10px + env(safe-area-inset-top)) 14px 8px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: linear-gradient(180deg, #000c 0%, transparent 100%);
+    pointer-events: none;
+  }
+  .top > * { pointer-events: auto; }
+  .brand { font-weight: 800; letter-spacing: .08em; font-size: .72rem; text-transform: uppercase; }
+  .stats { display: flex; gap: 8px; font-size: .72rem; }
+  .pill { background: #0008; border: 1px solid #ffffff22; border-radius: 999px; padding: 5px 9px; }
+  .pill b { color: var(--gold); }
+  .stage { flex: 1; position: relative; overflow: hidden; }
+  .card {
+    position: absolute; inset: 0;
+    padding: 68px 16px 128px;
+    display: flex; flex-direction: column;
+    background:
+      radial-gradient(1200px 600px at 20% -10%, #ff4d7a22, transparent 50%),
+      radial-gradient(900px 500px at 100% 100%, #8b7cff22, transparent 45%),
+      var(--bg);
+    transition: transform .32s cubic-bezier(.2,.8,.2,1), opacity .32s ease;
+  }
+  .card.exit-up { transform: translateY(-110%); opacity: 0; }
+  .card.exit-down { transform: translateY(110%); opacity: 0; }
+  .card.enter-from-down { transform: translateY(110%); }
+  .card.enter-from-up { transform: translateY(-110%); }
+  .kicker { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .stem { font-size: 1.15rem; line-height: 1.3; font-weight: 650; margin: 0 0 12px; max-height: 32%; overflow: auto; }
+  .case {
+    background: #ffffff0d; border: 1px solid #ffffff18; border-radius: 14px;
+    padding: 10px 12px; color: #ddd6c8; font-size: .86rem; line-height: 1.4;
+    white-space: pre-wrap; margin-bottom: 12px; max-height: 22%; overflow: auto;
+  }
+  .opts { display: flex; flex-direction: column; gap: 8px; overflow: auto; flex: 1; }
+  .opt {
+    width: 100%; text-align: left; border: 1px solid #ffffff22; background: #ffffff0d;
+    color: var(--ink); border-radius: 16px; padding: 12px 14px; font-size: .95rem; line-height: 1.35;
+  }
+  .opt.selected { border-color: var(--pink); background: #ff4d7a22; }
+  .opt.correct { border-color: var(--mint); background: #5dffc224; }
+  .opt.wrong { border-color: var(--pink); background: #ff4d7a33; }
+  .why {
+    display: none; margin-top: 10px; background: #0d0f14; border: 1px solid #ffffff1a;
+    border-radius: 14px; padding: 10px 12px; font-size: .86rem; line-height: 1.45; color: #e7e1d6;
+    max-height: 30%; overflow: auto;
+  }
+  .why.show { display: block; }
+  .why .nx { color: #c9b8a4; margin-top: 6px; }
+  .dock {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 6;
+    padding: 8px 14px calc(12px + env(safe-area-inset-bottom));
+    background: linear-gradient(0deg, #000e 30%, transparent);
+    display: flex; gap: 8px; align-items: center;
+  }
+  .handle {
+    position: absolute; left: 50%; bottom: 62px; transform: translateX(-50%);
+    width: 46px; height: 22px; z-index: 6; display: flex; align-items: center; justify-content: center;
+  }
+  .handle i { width: 36px; height: 4px; border-radius: 99px; background: #ffffff44; }
+  .btn { border: 0; border-radius: 999px; padding: 13px 14px; font-weight: 750; cursor: pointer; color: #fff; }
+  .btn.main { flex: 1; background: var(--pink); font-size: 1rem; }
+  .btn.ghost { background: #ffffff14; }
+  .hint { position: absolute; right: 14px; bottom: 92px; color: #fff8; font-size: .68rem; writing-mode: vertical-rl; letter-spacing: .18em; text-transform: uppercase; pointer-events: none; }
+  .gate, .sheet, .debrief {
+    position: absolute; inset: 0; background: var(--bg); z-index: 8;
+    padding: calc(24px + env(safe-area-inset-top)) 18px calc(22px + env(safe-area-inset-bottom));
+    display: flex; flex-direction: column; justify-content: flex-end; overflow: auto;
+  }
+  .gate h1, .sheet h2, .debrief h2 { margin: 0 0 8px; font-size: 1.85rem; letter-spacing: -.03em; }
+  .muted { color: var(--muted); line-height: 1.45; margin: 0 0 16px; }
+  .choice { display: grid; gap: 10px; margin-bottom: 14px; }
+  .choice button, .fonts button {
+    text-align: left; background: #161821; color: #fff; border: 1px solid #ffffff1c;
+    border-radius: 18px; padding: 14px;
+  }
+  .choice button.active, .fonts button.active { border-color: var(--pink); background: #2a1220; }
+  .choice b { display: block; font-size: 1.05rem; margin-bottom: 4px; }
+  .choice span { color: var(--muted); font-size: .85rem; }
+  .fonts { display: flex; gap: 8px; margin-bottom: 14px; }
+  .fonts button { flex: 1; text-align: center; }
+  .hidden { display: none !important; }
+  .toast {
+    position: absolute; top: 20%; left: 50%; transform: translateX(-50%);
+    background: #000c; border: 1px solid #ffffff2a; padding: 8px 14px; border-radius: 999px;
+    z-index: 9; font-size: .8rem; opacity: 0; transition: opacity .2s; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+  .flash { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
+  .flash.good { background: #5dffc218; }
+  .flash.bad { background: #ff4d7a18; }
+  .live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .fine { font-size: .75rem; color: #7f7a72; line-height: 1.4; margin-top: 10px; }
+  .miss-list { color: #ddd6c8; font-size: .88rem; line-height: 1.45; margin: 0 0 14px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <div class="brand">NCLEX Ward</div>
+    <div class="stats">
+      <div class="pill" id="trackPill">RN</div>
+      <div class="pill">🔥 <b id="streak">0</b></div>
+      <div class="pill">shift ✔ <b id="score">0</b></div>
+    </div>
+  </div>
+  <div class="stage" id="stage">
+    <div class="card" id="card"></div>
+    <div class="hint hidden" id="hint">swipe handle</div>
+    <div class="flash" id="flash"></div>
+    <div class="handle" id="handle" aria-label="Swipe up for next"><i></i></div>
+  </div>
+  <div class="dock" id="dock">
+    <button class="btn ghost" id="backBtn">Back</button>
+    <button class="btn main" id="mainBtn">Lock in</button>
+    <button class="btn ghost" id="menuBtn">Menu</button>
+  </div>
+  <div class="toast" id="toast"></div>
+  <div class="live" id="live" aria-live="polite"></div>
+  <div class="gate hidden" id="gate">
+    <p class="kicker">Same thumb. Better feed.</p>
+    <h1>Swipe the NCLEX instead.</h1>
+    <p class="muted">One full-screen item. Lock in. Swipe up. RN and PN are different scopes — pick the exam you are sitting.</p>
+    <div class="choice">
+      <button id="pickRN" type="button"><b>NCLEX-RN</b><span>Management of Care · parenteral therapies · independent priority</span></button>
+      <button id="pickPN" type="button"><b>NCLEX-PN</b><span>Coordinated Care · implement and escalate · practical-nurse scope</span></button>
+    </div>
+    <button class="btn main" id="startBtn" type="button">Open the feed</button>
+  </div>
+  <div class="sheet hidden" id="menu">
+    <h2>Shift menu</h2>
+    <p class="muted" id="menuCopy"></p>
+    <div class="fonts" id="fonts">
+      <button type="button" data-fs="s">S</button>
+      <button type="button" data-fs="m">M</button>
+      <button type="button" data-fs="l">L</button>
+    </div>
+    <div class="choice">
+      <button type="button" id="modeMix"><b>Endless mix</b><span>Shuffled feed for this track</span></button>
+      <button type="button" id="modeShift"><b>Work a shift</b><span>20 items, then a report</span></button>
+      <button type="button" id="modeCase"><b>Case study reel</b><span>6 swipes · pick a case</span></button>
+      <button type="button" id="modeMiss"><b>Missed only</b><span>Needs two clean hits to leave the bin</span></button>
+      <button type="button" id="switchTrack"><b>Switch RN / PN</b><span>Scores stay saved per track</span></button>
+    </div>
+    <div id="casePick" class="choice hidden"></div>
+    <p class="fine">Not affiliated with NCSBN. Practice items only — not live-exam content.</p>
+    <button class="btn main" id="closeMenu" type="button">Back to swiping</button>
+  </div>
+  <div class="debrief hidden" id="debrief"></div>
+</div>
+<script src="bank.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
