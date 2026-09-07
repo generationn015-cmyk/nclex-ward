@@ -31,11 +31,6 @@
   }
   function saveStats(p) { localStorage.setItem(storeKey(), JSON.stringify(Object.assign(stats(), p))); }
   function pool() { return BANK.filter((q) => q.tracks && q.tracks.includes(track)); }
-  function allCaseItems() {
-    const out = [];
-    Object.values(CASES).forEach((pack) => { Object.values(pack || {}).forEach((c) => out.push(...(c.steps || []))); });
-    return out;
-  }
   function shuffle(a) {
     const x = a.slice();
     for (let n = x.length - 1; n > 0; n--) { const j = Math.floor(Math.random() * (n + 1)); [x[n], x[j]] = [x[j], x[n]]; }
@@ -61,7 +56,7 @@
     else queue = shuffle(bank);
   }
   function paintPills() {
-    $("trackPill").textContent = (track || "—").toUpperCase();
+    $("trackPill").textContent = (track || "-").toUpperCase();
     $("streak").textContent = String(streak);
     $("score").textContent = String(shiftCorrect);
   }
@@ -70,7 +65,7 @@
     return { raw: q, multi: q.multi, opts: shuffle(opts) };
   }
   function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&", "<": "<", ">": ">", '"': """, "'": "&#39;" }[c]));
+    return String(s).replace(/&/g, '&'+'amp;').replace(/</g, '&'+'lt;').replace(/>/g, '&'+'gt;').replace(/"/g, '&'+'quot;').replace(/'/g, '&#39;');
   }
   function renderFromPrepared(prep, restore) {
     rendered = prep;
@@ -79,13 +74,13 @@
     locked = restore ? restore.locked : false;
     gradedOk = restore ? restore.gradedOk : null;
     const labels = LABELS[track] || {};
-    const extra = q.multi ? " · select all" : "";
+    const extra = q.multi ? " select all" : "";
     $("card").innerHTML =
-      `<div class="kicker">${labels[q.cat] || q.cat} · ${i + 1}/${queue.length}${extra}</div>` +
-      (q.case ? `<div class="case" id="caseBox">${escapeHtml(q.case)}</div>` : "") +
-      `<p class="stem" id="stemBox">${escapeHtml(q.stem)}</p>` +
-      `<div class="opts" id="optBox">${prep.opts.map((o, idx) => `<button class="opt" type="button" data-i="${idx}">${escapeHtml(o.t)}</button>`).join("")}</div>` +
-      `<div class="why" id="why"></div>`;
+      '<div class="kicker">' + (labels[q.cat] || q.cat) + ' ' + (i + 1) + '/' + queue.length + extra + '</div>' +
+      (q.case ? '<div class="case" id="caseBox">' + escapeHtml(q.case) + '</div>' : '') +
+      '<p class="stem" id="stemBox">' + escapeHtml(q.stem) + '</p>' +
+      '<div class="opts" id="optBox">' + prep.opts.map(function(o, idx){ return '<button class="opt" type="button" data-i="'+idx+'">' + escapeHtml(o.t) + '</button>'; }).join('') + '</div>' +
+      '<div class="why" id="why"></div>';
     $("optBox").querySelectorAll(".opt").forEach((b) => { b.onclick = () => tap(Number(b.dataset.i)); });
     if (restore && restore.locked) paintGrade(restore.gradedOk);
     else {
@@ -98,7 +93,7 @@
   function render() {
     if (!queue.length) {
       if (mode === "miss") return showEmptyMiss();
-      $("card").innerHTML = `<p class="kicker">Deck</p><p class="stem">No items loaded for this track yet. Hard-refresh in a minute if you just opened this.</p>`;
+      $("card").innerHTML = '<p class="kicker">Deck</p><p class="stem">No items loaded for this track yet.</p>';
       return;
     }
     renderFromPrepared(prepare(queue[i]), null);
@@ -116,7 +111,7 @@
     for (const n of selected) if (!need.has(n)) return false;
     return true;
   }
-  function clip(s, n) { return s.length > n ? s.slice(0, n - 1) + "…" : s; }
+  function clip(s, n) { return s.length > n ? s.slice(0, n - 1) + '...' : s; }
   function paintGrade(ok) {
     const need = new Set(rendered.opts.map((o, n) => (o.k ? n : null)).filter((n) => n !== null));
     [...$("optBox").children].forEach((el, n) => {
@@ -128,18 +123,18 @@
     if (!ok) {
       const lines = [];
       selected.forEach((n) => {
-        if (!rendered.opts[n].k && rendered.opts[n].w) lines.push("Not \u201c" + clip(rendered.opts[n].t, 42) + "\u201d because " + rendered.opts[n].w);
+        if (!rendered.opts[n].k && rendered.opts[n].w) lines.push('Not "' + clip(rendered.opts[n].t, 42) + '" because ' + rendered.opts[n].w);
       });
       if (!lines.length) {
         const bait = rendered.opts.find((o) => !o.k && o.w);
-        if (bait) lines.push("Not \u201c" + clip(bait.t, 42) + "\u201d because " + bait.w);
+        if (bait) lines.push('Not "' + clip(bait.t, 42) + '" because ' + bait.w);
       }
-      nx = lines.slice(0, 2).map((l) => `<div class="nx">${escapeHtml(l)}</div>`).join("");
+      nx = lines.slice(0, 2).map((l) => '<div class="nx">' + escapeHtml(l) + '</div>').join("");
     } else {
       const bait = rendered.opts.find((o) => !o.k && o.w);
-      if (bait) nx = `<div class="nx">Not \u201c${escapeHtml(clip(bait.t, 42))}\u201d because ${escapeHtml(bait.w)}</div>`;
+      if (bait) nx = '<div class="nx">Not "' + escapeHtml(clip(bait.t, 42)) + '" because ' + escapeHtml(bait.w) + '</div>';
     }
-    why.innerHTML = `<strong>${ok ? "Clean." : "Miss."}</strong> ${escapeHtml(rendered.raw.why)}${nx}`;
+    why.innerHTML = '<strong>' + (ok ? 'Clean.' : 'Miss.') + '</strong> ' + escapeHtml(rendered.raw.why) + nx;
     why.classList.add("show");
     $("mainBtn").textContent = "Swipe up";
   }
@@ -170,7 +165,7 @@
     flash.className = "flash " + (ok ? "good" : "bad");
     setTimeout(() => { flash.className = "flash"; }, 280);
     if (ok) { streak += 1; shiftCorrect += 1; shiftMaxStreak = Math.max(shiftMaxStreak, streak); toast(streak > 1 ? streak + " streak" : "yes"); live("Correct. " + rendered.raw.why); }
-    else { streak = 0; toast("read it \u00b7 then swipe"); live("Incorrect. " + rendered.raw.why); }
+    else { streak = 0; toast("read it then swipe"); live("Incorrect. " + rendered.raw.why); }
     applyMissLogic(rendered.raw.id, ok);
     shiftLog.push({ id: rendered.raw.id, ok, cat: rendered.raw.cat, stem: rendered.raw.stem });
     paintPills();
@@ -224,7 +219,7 @@
   }
   function showEmptyMiss() {
     $("debrief").className = "debrief";
-    $("debrief").innerHTML = `<h2>Missed bin is empty.</h2><p class="muted">Nothing sitting in the missed bin. Two clean answers are required to graduate an item out of it.</p><div class="choice"><button type="button" id="dMix"><b>Endless mix</b></button><button type="button" id="dShift"><b>Work a shift</b></button></div>`;
+    $("debrief").innerHTML = '<h2>Missed bin is empty.</h2><p class="muted">Two clean answers graduate an item out.</p><div class="choice"><button type="button" id="dMix"><b>Endless mix</b></button><button type="button" id="dShift"><b>Work a shift</b></button></div>';
     $("dMix").onclick = () => startMode("mix"); $("dShift").onclick = () => startMode("shift");
   }
   function showCaseDebrief() {
@@ -232,20 +227,16 @@
     const n = shiftLog.length; const ok = shiftLog.filter((x) => x.ok).length;
     const misses = shiftLog.filter((x) => !x.ok);
     $("debrief").className = "debrief";
-    $("debrief").innerHTML = `<h2>Case closed.</h2><p class="muted">${ok}/${n} on ${pack.title}.</p><p class="muted">${escapeHtml(pack.wrap || "")}</p>${misses.length ? `<div class="miss-list">${misses.map((m) => "\u2022 " + escapeHtml(m.stem)).join("<br>")}</div>` : `<p class="muted">Clean case.</p>`}<div class="choice"><button type="button" id="dMix"><b>Endless mix</b></button><button type="button" id="dMiss"><b>Missed reel</b></button><button type="button" id="dCase"><b>Another case</b></button></div>`;
+    $("debrief").innerHTML = '<h2>Case closed.</h2><p class="muted">' + ok + '/' + n + ' on ' + pack.title + '</p><p class="muted">' + escapeHtml(pack.wrap || "") + '</p>' + (misses.length ? '<div class="miss-list">' + misses.map((m) => '* ' + escapeHtml(m.stem)).join('<br>') + '</div>' : '<p class="muted">Clean case.</p>') + '<div class="choice"><button type="button" id="dMix"><b>Endless mix</b></button><button type="button" id="dMiss"><b>Missed reel</b></button><button type="button" id="dCase"><b>Another case</b></button></div>';
     $("dMix").onclick = () => startMode("mix"); $("dMiss").onclick = () => startMode("miss");
     $("dCase").onclick = () => { $("debrief").classList.add("hidden"); showMenu(true); };
   }
   function showShiftDebrief() {
     const n = shiftLog.length; const ok = shiftLog.filter((x) => x.ok).length;
     const pct = n ? Math.round(100 * ok / n) : 0;
-    const by = {};
-    shiftLog.forEach((r) => { by[r.cat] = by[r.cat] || { ok: 0, n: 0 }; by[r.cat].n += 1; if (r.ok) by[r.cat].ok += 1; });
-    const labels = LABELS[track] || {};
-    const catLines = Object.keys(by).map((k) => `${labels[k] || k} ${by[k].ok}/${by[k].n}`).join(" \u00b7 ");
     const misses = shiftLog.filter((x) => !x.ok);
     $("debrief").className = "debrief";
-    $("debrief").innerHTML = `<h2>End of shift.</h2><p class="muted">${ok}/${n} \u00b7 ${pct}% \u00b7 max streak ${shiftMaxStreak}</p><p class="muted">${escapeHtml(catLines || "No category splits.")}</p>${misses.length ? `<div class="miss-list">${misses.slice(0, 8).map((m) => "\u2022 " + escapeHtml(m.stem)).join("<br>")}</div>` : `<p class="muted">No misses this shift.</p>`}<div class="choice"><button type="button" id="dMiss"><b>Review missed</b></button><button type="button" id="dShift"><b>Another shift</b></button><button type="button" id="dMix"><b>Endless mix</b></button></div>`;
+    $("debrief").innerHTML = '<h2>End of shift.</h2><p class="muted">' + ok + '/' + n + ' ' + pct + '% max streak ' + shiftMaxStreak + '</p>' + (misses.length ? '<div class="miss-list">' + misses.slice(0, 8).map((m) => '* ' + escapeHtml(m.stem)).join('<br>') + '</div>' : '<p class="muted">No misses this shift.</p>') + '<div class="choice"><button type="button" id="dMiss"><b>Review missed</b></button><button type="button" id="dShift"><b>Another shift</b></button><button type="button" id="dMix"><b>Endless mix</b></button></div>';
     $("dMiss").onclick = () => startMode("miss"); $("dShift").onclick = () => startMode("shift"); $("dMix").onclick = () => startMode("mix");
   }
   function hideOverlays() { $("gate").classList.add("hidden"); $("menu").classList.add("hidden"); $("debrief").classList.add("hidden"); }
@@ -262,14 +253,12 @@
   }
   function showMenu(openCases) {
     const s = stats(); const acc = s.n ? Math.round(100 * s.ok / s.n) : 0;
-    const labels = LABELS[track] || LABELS.rn || {};
-    const cats = Object.keys(s.byCat || {}).map((k) => `${labels[k] || k} ${s.byCat[k].ok}/${s.byCat[k].n}`).join(" \u00b7 ");
-    $("menuCopy").textContent = (track || "").toUpperCase() + " \u00b7 lifetime " + acc + "% (" + s.ok + "/" + s.n + ") \u00b7 missed bin " + s.miss.length + (cats ? " \u00b7 " + cats : "");
+    $("menuCopy").textContent = (track || "").toUpperCase() + " lifetime " + acc + "% (" + s.ok + "/" + s.n + ") missed bin " + s.miss.length;
     const box = $("casePick");
     if (openCases) {
       box.classList.remove("hidden");
       const pack = CASES[track] || {};
-      box.innerHTML = Object.keys(pack).map((id) => `<button type="button" data-case="${id}"><b>${pack[id].title}</b><span>6-step unfolding case</span></button>`).join("") || "<p class=muted>Cases still loading.</p>";
+      box.innerHTML = Object.keys(pack).map((id) => '<button type="button" data-case="'+id+'"><b>'+pack[id].title+'</b><span>6-step unfolding case</span></button>').join("") || '<p class="muted">Cases still loading.</p>';
       box.querySelectorAll("button").forEach((b) => { b.onclick = () => startMode("case", b.dataset.case); });
     } else box.classList.add("hidden");
     $("menu").classList.remove("hidden"); applyFont();
