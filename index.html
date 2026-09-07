@@ -8,13 +8,12 @@
 <meta name="theme-color" content="#07080d">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
-<link rel="apple-touch-icon" href="icon.svg">
 <title>NCLEX Ward</title>
 <style>
   :root { --bg:#07080d; --ink:#f4f1ea; --muted:#9a9488; --pink:#ff4d7a; --gold:#ffd36a; --mint:#5dffc2; --fs:16px; }
   html.fs-s { --fs:14px; } html.fs-m { --fs:16px; } html.fs-l { --fs:18px; }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html,body { margin:0; height:100%; background:var(--bg); color:var(--ink); font-family:"SF Pro Display","Segoe UI",system-ui,sans-serif; overflow:hidden; font-size:var(--fs); }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--ink); font-family:system-ui,sans-serif; overflow:hidden; font-size:var(--fs); }
   #app { height:100%; height:100dvh; display:flex; flex-direction:column; }
   .top { position:absolute; top:0; left:0; right:0; z-index:5; padding:calc(10px + env(safe-area-inset-top)) 14px 8px; display:flex; justify-content:space-between; align-items:center; background:linear-gradient(180deg,#000c 0%,transparent 100%); pointer-events:none; }
   .top > * { pointer-events:auto; }
@@ -78,11 +77,18 @@
   <div class="sheet hidden" id="menu"><h2>Shift menu</h2><p class="muted" id="menuCopy"></p><div class="fonts" id="fonts"><button type="button" data-fs="s">S</button><button type="button" data-fs="m">M</button><button type="button" data-fs="l">L</button></div><div class="choice"><button type="button" id="modeMix"><b>Endless mix</b><span>Shuffled feed</span></button><button type="button" id="modeShift"><b>Work a shift</b><span>20 items, then a report</span></button><button type="button" id="modeCase"><b>Case study reel</b><span>6 swipes</span></button><button type="button" id="modeMiss"><b>Missed only</b><span>Two clean hits to leave the bin</span></button><button type="button" id="switchTrack"><b>Switch RN / PN</b><span>Scores stay per track</span></button></div><div id="casePick" class="choice hidden"></div><p class="fine">Not affiliated with NCSBN. Practice items only.</p><button class="btn main" id="closeMenu" type="button">Back to swiping</button></div>
   <div class="debrief hidden" id="debrief"></div>
 </div>
-<script src="bank-p0.js"></script>
-<script src="bank-p1.js"></script>
-<script src="bank-p2.js"></script>
-<script src="bank-p3.js"></script>
-<script src="cases.js"></script>
+<script src="b0.js"></script>
+<script src="b1.js"></script>
+<script src="b2.js"></script>
+<script src="b3.js"></script>
+<script src="b4.js"></script>
+<script src="b5.js"></script>
+<script src="b6.js"></script>
+<script src="b7.js"></script>
+<script src="b8.js"></script>
+<script src="b9.js"></script>
+<script src="c-rn.js"></script>
+<script src="c-pn.js"></script>
 <script src="labels.js"></script>
 <script src="app.js"></script>
 </body></html>
